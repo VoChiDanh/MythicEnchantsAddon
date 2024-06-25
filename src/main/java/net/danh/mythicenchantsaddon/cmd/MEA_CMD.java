@@ -1,6 +1,7 @@
 package net.danh.mythicenchantsaddon.cmd;
 
 
+import io.lumine.mythic.lib.UtilityMethods;
 import io.lumine.mythicenchants.MythicEnchants;
 import io.lumine.mythicenchants.enchants.EnchantManager;
 import io.lumine.mythicenchants.enchants.MythicEnchant;
@@ -46,16 +47,18 @@ public class MEA_CMD extends CMDBase {
                                 StringBuilder mapAsString = new StringBuilder("&7");
                                 AtomicInteger enchant = new AtomicInteger(0);
                                 if (!p.getInventory().getItemInMainHand().getEnchantments().isEmpty()) {
-                                    p.getInventory().getItemInMainHand().getEnchantments().forEach((enchantment, integer) -> {
-                                        if (enchantManager.toMythicEnchantment(enchantment).isPresent()) {
-                                            enchantManager.toMythicEnchantment(enchantment).ifPresent(mythicEnchant -> {
-                                                mapAsString.append(mythicEnchant.getDisplayName()).append(" ").append(integer).append(", ");
-                                                enchant.getAndIncrement();
-                                                if (enchant.get() > 0 && enchant.get() % 2 == 0)
-                                                    mapAsString.append("<newline>&7");
-                                            });
-                                        }
-                                    });
+                                    p.getInventory().getItemInMainHand().getEnchantments().forEach((enchantment, integer) ->
+                                            enchantManager.toMythicEnchantment(enchantment).ifPresentOrElse(mythicEnchant -> {
+                                        mapAsString.append(mythicEnchant.getDisplayName()).append(" ").append(integer).append(", ");
+                                        enchant.getAndIncrement();
+                                        if (enchant.get() > 0 && enchant.get() % 2 == 0)
+                                            mapAsString.append("<newline>&7");
+                                    }, () -> {
+                                        mapAsString.append(Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " "))).append(" ").append(integer).append(", ");
+                                        enchant.getAndIncrement();
+                                        if (enchant.get() > 0 && enchant.get() % 2 == 0)
+                                            mapAsString.append("<newline>&7");
+                                    }));
                                 }
                                 MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt removeLore top " + p.getName() + " hand");
                                 MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt addLore top " + p.getName() + " hand " + mapAsString.toString());
