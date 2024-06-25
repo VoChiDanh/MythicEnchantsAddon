@@ -60,8 +60,13 @@ public class MEA_CMD extends CMDBase {
                                             mapAsString.append("<newline>&7");
                                     }));
                                 }
+                                String lore = mapAsString.toString();
+                                if (lore.endsWith("<newline>&7"))
+                                    lore = lore.trim().substring(0, lore.length() - 13);
+                                if (lore.endsWith(", "))
+                                    lore = lore.trim().substring(0, lore.length() - 2);
                                 MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt removeLore top " + p.getName() + " hand");
-                                MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt addLore top " + p.getName() + " hand " + mapAsString.toString());
+                                MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt addLore top " + p.getName() + " hand " + lore);
                             }
                         }.runTask(MythicEnchants.inst());
                     }
