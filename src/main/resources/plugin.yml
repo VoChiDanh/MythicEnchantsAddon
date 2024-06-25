@@ -1,0 +1,9 @@
+name: MythicEnchantsAddon
+version: '${project.version}'
+main: net.danh.mythicenchantsaddon.MythicEnchantsAddon
+api-version: '1.20'
+depend: [ MythicEnchants, MMOItems ]
+authors: [ VoChiDanh ]
+commands:
+  meaddon:
+    description: MEAddon
