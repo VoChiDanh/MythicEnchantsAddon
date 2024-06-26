@@ -164,6 +164,7 @@ public class MEA_CMD extends CMDBase {
         List<String> commands = new ArrayList<>();
         if (args.length == 1) {
             if (sender.hasPermission("meaddon.admin")) {
+                commands.add("reload");
                 commands.add("give");
                 commands.add("help");
                 commands.add("format-lore");

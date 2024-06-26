@@ -34,6 +34,7 @@ public class Files {
             List<String> listCMD = new ArrayList<>();
             listCMD.add("&6/meaddon give <player> <enchantID> <level> - Give Enchantments Books");
             listCMD.add("&6/meaddon format-lore [player] - Format lore for item");
+            listCMD.add("&6/meaddon reload - Reload Config");
             fileConfiguration.set("MythicEnchantsAddon.Message.Command", listCMD);
         }
         if (!fileConfiguration.contains("MythicEnchantsAddon.EnchantInfo")) {
