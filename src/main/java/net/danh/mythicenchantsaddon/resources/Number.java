@@ -1,5 +1,7 @@
 package net.danh.mythicenchantsaddon.resources;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.concurrent.ThreadLocalRandom;
@@ -101,7 +103,7 @@ public class Number {
         }
     }
 
-    public static String doubleToSuffixedNumber(double number) {
+    public static @NotNull String doubleToSuffixedNumber(double number) {
         if (number < 1000) {
             return String.format("%.2f", number);
         } else {

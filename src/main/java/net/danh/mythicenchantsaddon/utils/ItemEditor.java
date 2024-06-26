@@ -5,6 +5,7 @@ import net.danh.mythicenchantsaddon.resources.Chat;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class ItemEditor {
         this(m, 1);
     }
 
-    public ItemEditor(ItemStack is) {
+    public ItemEditor(@NotNull ItemStack is) {
         this.is = is;
         itemMeta = is.getItemMeta();
     }

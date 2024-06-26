@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -15,7 +16,8 @@ import java.util.stream.Collectors;
 public class Chat {
 
 
-    public static String normalColorize(String string) {
+    @Contract("_ -> new")
+    public static @NotNull String normalColorize(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
 
@@ -37,7 +39,7 @@ public class Chat {
         return Arrays.stream(message).map(Chat::colorize).collect(Collectors.toList());
     }
 
-    public static String caseOnWords(String input) {
+    public static @NotNull String caseOnWords(String input) {
         StringBuilder builder = new StringBuilder(input);
         boolean isLastSpace = true;
 

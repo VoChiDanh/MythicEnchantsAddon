@@ -1,10 +1,14 @@
 package net.danh.mythicenchantsaddon.events;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import io.lumine.mythic.lib.api.item.NBTItem;
 import io.lumine.mythicenchants.MythicEnchants;
 import io.lumine.mythicenchants.enchants.EnchantManager;
+import io.lumine.mythicenchants.enchants.MythicEnchant;
 import net.danh.mythicenchantsaddon.resources.Chat;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantsMEA implements Listener {
 
@@ -24,24 +28,78 @@ public class EnchantsMEA implements Listener {
         if (e.getWhoClicked() instanceof Player p) {
             if (e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)) {
                 ItemStack enchantBook = e.getCursor();
-                AtomicReference<ItemStack> itemStack = new AtomicReference<>(e.getCurrentItem());
-                NBTItem nbtItem = NBTItem.get(itemStack.get());
+                NBTItem nbtItem = NBTItem.get(e.getCurrentItem());
+                int slot = e.getSlot();
                 EnchantManager enchantManager = MythicEnchants.inst().getEnchantManager();
-                if (!enchantManager.getMythicEnchants(enchantBook).isEmpty()
+                if (NBT.modify(enchantBook, readableItemNBT -> {
+                    return readableItemNBT.hasTag("mythicenchantsaddon_enchant_id");
+                })
                         && enchantBook.getType() == Material.valueOf(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Material"))
                         && e.getCurrentItem() != null) {
-                    int enchantLimits = nbtItem.hasTag("MMOITEMS_MYTHIC_LIMIT_ENCHANTS") ? nbtItem.getInteger("MMOITEMS_MYTHIC_LIMIT_ENCHANTS") : MythicEnchants.inst().getConfig().getInt("MythicEnchantsAddon.Settings.DefaultLimitEnchants", 10);
-                    int enchants = itemStack.get().getEnchantments().isEmpty() ? 0 : itemStack.get().getEnchantments().size();
-                    int preEnchants = enchantManager.getMythicEnchants(enchantBook).size();
+                    int enchantLimits = nbtItem.hasTag("MMOITEMS_MYTHIC_LIMIT_ENCHANTS")
+                            ? nbtItem.getInteger("MMOITEMS_MYTHIC_LIMIT_ENCHANTS")
+                            : MythicEnchants.inst().getConfig().getInt("MythicEnchantsAddon.Settings.DefaultLimitEnchants", 10);
+                    int enchants = e.getCurrentItem().getEnchantments().isEmpty() ? 0 : e.getCurrentItem().getEnchantments().size();
+                    int preEnchants = enchantBook.getEnchantments().size();
                     if (preEnchants + enchants <= enchantLimits) {
-                        enchantManager.getMythicEnchants(enchantBook).forEach((mythicEnchant, integer) -> {
-                            if (mythicEnchant.canEnchantItem(itemStack.get())) {
-                                itemStack.set(enchantManager.applyToItem(itemStack.get(), mythicEnchant, integer));
-                                e.setCursor(new ItemStack(Material.AIR));
-                            } else
-                                p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.CannotEnchant"))
-                                        .replace("<enchant>", mythicEnchant.getDisplayName())));
+                        String enchantID = NBT.modify(enchantBook, readableItemNBT -> {
+                            return readableItemNBT.getString("mythicenchantsaddon_enchant_id");
                         });
+                        int level = NBT.modify(enchantBook, readableItemNBT -> {
+                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_level");
+                        });
+                        int successChance = NBT.modify(enchantBook, readableItemNBT -> {
+                            return readableItemNBT.getInteger("mythicenchantsaddon_success_chance");
+                        });
+
+                        MythicEnchant enchant = enchantManager.getEnchantments().get(enchantID);
+                        if (enchant != null) {
+                            if (ThreadLocalRandom.current().nextInt(101) < successChance) {
+                                if (enchant.canEnchantItem(e.getCurrentItem())) {
+                                    NBT.modify(e.getCurrentItem(), readableItemNBT -> {
+                                        readableItemNBT.setInteger("mythicenchantsaddon_enchant_" + enchantID, level);
+                                    });
+                                    p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.EnchantSuccess"))
+                                            .replace("<enchantment>", enchant.getDisplayName())
+                                            .replace("<level>", String.valueOf(level))));
+                                    e.setCancelled(true);
+                                    e.setCursor(new ItemStack(Material.AIR));
+                                } else
+                                    p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.CannotEnchant"))
+                                            .replace("<enchant>", enchant.getDisplayName())));
+                            } else {
+                                p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.EnchantFailed"))
+                                        .replace("<enchantment>", enchant.getDisplayName())
+                                        .replace("<level>", String.valueOf(level))));
+                                e.setCancelled(true);
+                                e.setCursor(new ItemStack(Material.AIR));
+                            }
+                        } else if (Enchantment.getByKey(NamespacedKey.minecraft(enchantID)) != null) {
+                            Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantID));
+                            if (enchantment != null) {
+                                if (ThreadLocalRandom.current().nextInt(101) < successChance) {
+                                    if (enchantment.canEnchantItem(e.getCurrentItem())) {
+                                        NBT.modify(e.getCurrentItem(), readableItemNBT -> {
+                                            readableItemNBT.setInteger("mythicenchantsaddon_enchant_" + enchantID, level);
+                                        });
+                                        p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.EnchantSuccess"))
+                                                .replace("<enchantment>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))
+                                                .replace("<level>", String.valueOf(level))));
+                                        e.setCancelled(true);
+                                        e.setCursor(new ItemStack(Material.AIR));
+                                    } else
+                                        p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.CannotEnchant"))
+                                                .replace("<enchant>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))));
+                                } else {
+                                    p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.EnchantFailed"))
+                                            .replace("<enchantment>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))
+                                            .replace("<level>", String.valueOf(level))));
+                                    e.setCancelled(true);
+                                    e.setCursor(new ItemStack(Material.AIR));
+                                }
+                            }
+                        }
+                        //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "meaddon format-lore " + p.getName() + " " + slot); TODO: Khong hoat dong dau dung bat ^.^
                     } else {
                         p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.LimitEnchants"))
                                 .replace("<limit>", String.valueOf(enchantLimits))));

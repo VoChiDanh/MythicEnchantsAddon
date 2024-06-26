@@ -1,16 +1,15 @@
 package net.danh.mythicenchantsaddon.cmd;
 
 
-import io.lumine.mythic.lib.UtilityMethods;
+import de.tr7zw.changeme.nbtapi.NBT;
 import io.lumine.mythicenchants.MythicEnchants;
 import io.lumine.mythicenchants.enchants.EnchantManager;
-import io.lumine.mythicenchants.enchants.MythicEnchant;
 import net.danh.mythicenchantsaddon.resources.Chat;
 import net.danh.mythicenchantsaddon.resources.Number;
-import net.danh.mythicenchantsaddon.utils.ItemEditor;
+import net.danh.mythicenchantsaddon.utils.EnchantedBook;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MEA_CMD extends CMDBase {
@@ -44,21 +42,42 @@ public class MEA_CMD extends CMDBase {
                             @Override
                             public void run() {
                                 EnchantManager enchantManager = MythicEnchants.inst().getEnchantManager();
+                                ItemStack itemStack = p.getInventory().getItemInMainHand();
+                                for (Enchantment enchantment : Enchantment.values()) {
+                                    String enchantID = enchantment.getKey().getKey();
+                                    int level = NBT.get(itemStack, readableItemNBT -> {
+                                        return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
+                                    });
+                                    if (level > 0) {
+                                        if (enchantManager.applyEnchantment(itemStack, enchantID, level))
+                                            c.sendMessage(String.valueOf(itemStack.getEnchantments()));
+                                    }
+                                }
+                                for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
+                                    int level = NBT.get(itemStack, readableItemNBT -> {
+                                        return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
+                                    });
+                                    if (level > 0) {
+                                        c.sendMessage(String.valueOf(itemStack.getEnchantments()));
+                                        enchantManager.applyToItem(itemStack, enchantManager.getEnchantments().get(mythicEnchantID)
+                                                , level);
+                                    }
+                                }
                                 StringBuilder mapAsString = new StringBuilder("&7");
                                 AtomicInteger enchant = new AtomicInteger(0);
-                                if (!p.getInventory().getItemInMainHand().getEnchantments().isEmpty()) {
-                                    p.getInventory().getItemInMainHand().getEnchantments().forEach((enchantment, integer) ->
+                                if (!itemStack.getEnchantments().isEmpty()) {
+                                    itemStack.getEnchantments().forEach((enchantment, integer) ->
                                             enchantManager.toMythicEnchantment(enchantment).ifPresentOrElse(mythicEnchant -> {
-                                        mapAsString.append(mythicEnchant.getDisplayName()).append(" ").append(integer).append(", ");
-                                        enchant.getAndIncrement();
-                                        if (enchant.get() > 0 && enchant.get() % 2 == 0)
-                                            mapAsString.append("<newline>&7");
-                                    }, () -> {
-                                        mapAsString.append(Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " "))).append(" ").append(integer).append(", ");
-                                        enchant.getAndIncrement();
-                                        if (enchant.get() > 0 && enchant.get() % 2 == 0)
-                                            mapAsString.append("<newline>&7");
-                                    }));
+                                                mapAsString.append(mythicEnchant.getDisplayName()).append(" ").append(integer).append(", ");
+                                                enchant.getAndIncrement();
+                                                if (enchant.get() > 0 && enchant.get() % 2 == 0)
+                                                    mapAsString.append("<newline>&7");
+                                            }, () -> {
+                                                mapAsString.append(Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " "))).append(" ").append(integer).append(", ");
+                                                enchant.getAndIncrement();
+                                                if (enchant.get() > 0 && enchant.get() % 2 == 0)
+                                                    mapAsString.append("<newline>&7");
+                                            }));
                                 }
                                 String lore = mapAsString.toString();
                                 if (lore.endsWith("<newline>&7"))
@@ -72,35 +91,89 @@ public class MEA_CMD extends CMDBase {
                     }
                 }
             }
+            if (args.length == 3) {
+                if (args[0].equalsIgnoreCase("format-lore")) {
+                    Player p = Bukkit.getPlayer(args[1]);
+                    int slot = Number.getInteger(args[2]);
+                    if (p != null) {
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                EnchantManager enchantManager = MythicEnchants.inst().getEnchantManager();
+                                ItemStack itemStack = p.getInventory().getItem(slot);
+                                if (itemStack != null) {
+                                    for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
+                                        int level = NBT.get(itemStack, readableItemNBT -> {
+                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
+                                        });
+                                        if (level > 0) {
+                                            enchantManager.applyToItem(itemStack, enchantManager.getEnchantments().get(mythicEnchantID)
+                                                    , level);
+                                        }
+                                    }
+                                    for (Enchantment enchantment : Enchantment.values()) {
+                                        String enchantID = enchantment.getKey().getKey();
+                                        int level = NBT.get(itemStack, readableItemNBT -> {
+                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
+                                        });
+                                        if (level > 0) {
+                                            enchantManager.applyEnchantment(itemStack, enchantID, level);
+                                        }
+                                    }
+                                    StringBuilder mapAsString = new StringBuilder("&7");
+                                    AtomicInteger enchant = new AtomicInteger(0);
+                                    if (!itemStack.getEnchantments().isEmpty()) {
+                                        itemStack.getEnchantments().forEach((enchantment, integer) ->
+                                                enchantManager.toMythicEnchantment(enchantment).ifPresentOrElse(mythicEnchant -> {
+                                                    mapAsString.append(mythicEnchant.getDisplayName()).append(" ").append(integer).append(", ");
+                                                    enchant.getAndIncrement();
+                                                    if (enchant.get() > 0 && enchant.get() % 2 == 0)
+                                                        mapAsString.append("<newline>&7");
+                                                }, () -> {
+                                                    mapAsString.append(Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " "))).append(" ").append(integer).append(", ");
+                                                    enchant.getAndIncrement();
+                                                    if (enchant.get() > 0 && enchant.get() % 2 == 0)
+                                                        mapAsString.append("<newline>&7");
+                                                }));
+                                    }
+                                    String lore = mapAsString.toString();
+                                    if (lore.endsWith("<newline>&7"))
+                                        lore = lore.trim().substring(0, lore.length() - 13);
+                                    if (lore.endsWith(", "))
+                                        lore = lore.trim().substring(0, lore.length() - 2);
+                                    MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt removeLore top " + p.getName() + " " + slot);
+                                    MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt addLore top " + p.getName() + " " + slot + " " + lore);
+                                    for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
+                                        int level = NBT.get(itemStack, readableItemNBT -> {
+                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
+                                        });
+                                        if (level > 0) {
+                                            enchantManager.applyToItem(itemStack, enchantManager.getEnchantments().get(mythicEnchantID)
+                                                    , level);
+                                        }
+                                    }
+                                    for (Enchantment enchantment : Enchantment.values()) {
+                                        String enchantID = enchantment.getKey().getKey();
+                                        int level = NBT.get(itemStack, readableItemNBT -> {
+                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
+                                        });
+                                        if (level > 0) {
+                                            enchantManager.applyEnchantment(itemStack, enchantID, level);
+                                        }
+                                    }
+                                }
+                            }
+                        }.runTask(MythicEnchants.inst());
+                    }
+                }
+            }
             if (args.length == 4) {
                 if (args[0].equalsIgnoreCase("give")) {
                     Player p = Bukkit.getPlayer(args[1]);
-                    MythicEnchant enchant = MythicEnchants.inst().getEnchantManager().getEnchantments().get(args[2]);
-                    if (p != null && enchant != null) {
-                        ItemStack enchantBook;
-                        if (MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantInfo.CustomLore." + args[2])) {
-                            enchantBook = MythicEnchants.inst().getEnchantManager().applyToItem(new ItemEditor(
-                                    Material.valueOf(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Material")))
-                                    .addAllLore((MythicEnchants.inst().getConfig().getStringList("MythicEnchantsAddon.EnchantInfo.CustomLore." + args[2])))
-                                    .setName(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Display"))
-                                            .replace("<enchant>", enchant.getDisplayName())
-                                            .replace("<level>", args[3]))
-                                    .toItemStack(), enchant, Number.getInteger(args[3]));
-                        } else if (MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantInfo.DefaultLore")) {
-                            enchantBook = MythicEnchants.inst().getEnchantManager().applyToItem(new ItemEditor(
-                                    Material.valueOf(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Material")))
-                                    .addAllLore((MythicEnchants.inst().getConfig().getStringList("MythicEnchantsAddon.EnchantInfo.DefaultLore")))
-                                    .setName(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Display"))
-                                            .replace("<enchant>", enchant.getDisplayName())
-                                            .replace("<level>", args[3])).toItemStack(), enchant, Number.getInteger(args[3]));
-                        } else {
-                            enchantBook = MythicEnchants.inst().getEnchantManager().applyToItem(new ItemEditor(
-                                    Material.valueOf(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Material")))
-                                    .setName(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Display"))
-                                            .replace("<enchant>", enchant.getDisplayName())
-                                            .replace("<level>", args[3])).toItemStack(), enchant, Number.getInteger(args[3]));
-                        }
-                        p.getInventory().addItem(enchantBook);
+                    if (p != null) {
+                        ItemStack enchantBook = EnchantedBook.getEnchantedBook(args[2], args[3]);
+                        if (enchantBook != null)
+                            p.getInventory().addItem(enchantBook);
 
                     }
                 }
@@ -109,7 +182,7 @@ public class MEA_CMD extends CMDBase {
     }
 
     @Override
-    public List<String> TabComplete(CommandSender sender, @NotNull String[] args) {
+    public List<String> TabComplete(CommandSender sender, @NotNull String @NotNull [] args) {
         List<String> completions = new ArrayList<>();
         List<String> commands = new ArrayList<>();
         if (args.length == 1) {
@@ -133,6 +206,10 @@ public class MEA_CMD extends CMDBase {
             if (sender.hasPermission("meaddon.admin")) {
                 if (args[0].equalsIgnoreCase("give")) {
                     MythicEnchants.inst().getEnchantManager().getEnchantments().forEach((s, mythicEnchant) -> commands.add(s));
+                    for (Enchantment enchantment : Enchantment.values()) {
+                        if (!commands.contains(enchantment.getKey().getKey().toUpperCase()))
+                            commands.add(enchantment.getKey().getKey());
+                    }
                 }
             }
             StringUtil.copyPartialMatches(args[2], commands, completions);
