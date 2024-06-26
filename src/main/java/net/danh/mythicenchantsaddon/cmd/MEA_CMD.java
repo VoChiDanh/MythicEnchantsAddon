@@ -49,8 +49,8 @@ public class MEA_CMD extends CMDBase {
                                         return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
                                     });
                                     if (level > 0) {
-                                        if (enchantManager.applyEnchantment(itemStack, enchantID, level))
-                                            c.sendMessage(String.valueOf(itemStack.getEnchantments()));
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                                "goop nbt enchantment " + p.getName() + " hand " + enchantID + " +" + level);
                                     }
                                 }
                                 for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
@@ -58,9 +58,7 @@ public class MEA_CMD extends CMDBase {
                                         return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
                                     });
                                     if (level > 0) {
-                                        c.sendMessage(String.valueOf(itemStack.getEnchantments()));
-                                        enchantManager.applyToItem(itemStack, enchantManager.getEnchantments().get(mythicEnchantID)
-                                                , level);
+                                        MythicEnchants.inst().getEnchantManager().applyEnchantment(itemStack, mythicEnchantID, level);
                                     }
                                 }
                                 StringBuilder mapAsString = new StringBuilder("&7");
@@ -102,22 +100,22 @@ public class MEA_CMD extends CMDBase {
                                 EnchantManager enchantManager = MythicEnchants.inst().getEnchantManager();
                                 ItemStack itemStack = p.getInventory().getItem(slot);
                                 if (itemStack != null) {
-                                    for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
-                                        int level = NBT.get(itemStack, readableItemNBT -> {
-                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
-                                        });
-                                        if (level > 0) {
-                                            enchantManager.applyToItem(itemStack, enchantManager.getEnchantments().get(mythicEnchantID)
-                                                    , level);
-                                        }
-                                    }
                                     for (Enchantment enchantment : Enchantment.values()) {
                                         String enchantID = enchantment.getKey().getKey();
                                         int level = NBT.get(itemStack, readableItemNBT -> {
                                             return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
                                         });
                                         if (level > 0) {
-                                            enchantManager.applyEnchantment(itemStack, enchantID, level);
+                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                                    "goop nbt enchantment " + p.getName() + " " + slot + " " + enchantID + " +" + level);
+                                        }
+                                    }
+                                    for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
+                                        int level = NBT.get(itemStack, readableItemNBT -> {
+                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
+                                        });
+                                        if (level > 0) {
+                                            MythicEnchants.inst().getEnchantManager().applyEnchantment(itemStack, mythicEnchantID, level);
                                         }
                                     }
                                     StringBuilder mapAsString = new StringBuilder("&7");
@@ -143,24 +141,6 @@ public class MEA_CMD extends CMDBase {
                                         lore = lore.trim().substring(0, lore.length() - 2);
                                     MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt removeLore top " + p.getName() + " " + slot);
                                     MythicEnchants.inst().getServer().dispatchCommand(Bukkit.getConsoleSender(), "goop nbt addLore top " + p.getName() + " " + slot + " " + lore);
-                                    for (String mythicEnchantID : enchantManager.getEnchantments().keySet()) {
-                                        int level = NBT.get(itemStack, readableItemNBT -> {
-                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + mythicEnchantID);
-                                        });
-                                        if (level > 0) {
-                                            enchantManager.applyToItem(itemStack, enchantManager.getEnchantments().get(mythicEnchantID)
-                                                    , level);
-                                        }
-                                    }
-                                    for (Enchantment enchantment : Enchantment.values()) {
-                                        String enchantID = enchantment.getKey().getKey();
-                                        int level = NBT.get(itemStack, readableItemNBT -> {
-                                            return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
-                                        });
-                                        if (level > 0) {
-                                            enchantManager.applyEnchantment(itemStack, enchantID, level);
-                                        }
-                                    }
                                 }
                             }
                         }.runTask(MythicEnchants.inst());
