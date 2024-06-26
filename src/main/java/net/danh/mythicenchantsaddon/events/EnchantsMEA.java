@@ -29,9 +29,8 @@ public class EnchantsMEA implements Listener {
             if (e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)) {
                 ItemStack enchantBook = e.getCursor();
                 NBTItem nbtItem = NBTItem.get(e.getCurrentItem());
-                int slot = e.getSlot();
                 EnchantManager enchantManager = MythicEnchants.inst().getEnchantManager();
-                if (NBT.modify(enchantBook, readableItemNBT -> {
+                if (NBT.get(enchantBook, readableItemNBT -> {
                     return readableItemNBT.hasTag("mythicenchantsaddon_enchant_id");
                 })
                         && enchantBook.getType() == Material.valueOf(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.EnchantedBook.Material"))
@@ -99,7 +98,6 @@ public class EnchantsMEA implements Listener {
                                 }
                             }
                         }
-                        //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "meaddon format-lore " + p.getName() + " " + slot); TODO: Khong hoat dong dau dung bat ^.^
                     } else {
                         p.sendMessage(Chat.colorize(Objects.requireNonNull(MythicEnchants.inst().getConfig().getString("MythicEnchantsAddon.Message.LimitEnchants"))
                                 .replace("<limit>", String.valueOf(enchantLimits))));

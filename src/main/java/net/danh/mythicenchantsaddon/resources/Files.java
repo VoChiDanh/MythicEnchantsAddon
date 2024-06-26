@@ -1,6 +1,7 @@
 package net.danh.mythicenchantsaddon.resources;
 
 import io.lumine.mythicenchants.MythicEnchants;
+import net.danh.mythicenchantsaddon.utils.ConfigFile;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -66,6 +67,7 @@ public class Files {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        new ConfigFile().reload();
         YamlConfiguration.loadConfiguration(configFile);
         MythicEnchants.inst().getLogger().info("Added addon settings to config.yml !");
     }
