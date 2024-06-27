@@ -67,6 +67,7 @@ public class EnchantedBook {
                 readWriteItemNBT.setString("mythicenchantsaddon_enchant_id", enchantID);
                 readWriteItemNBT.setInteger("mythicenchantsaddon_enchant_level", Number.getInteger(level));
                 readWriteItemNBT.setInteger("mythicenchantsaddon_success_chance", successChance);
+                readWriteItemNBT.setString("mythicenchantsaddon_item_type", "enchanted_book");
             });
             return enchantBook;
         } else if (Enchantment.getByKey(NamespacedKey.minecraft(enchantID)) != null) {
@@ -102,6 +103,7 @@ public class EnchantedBook {
                     readWriteItemNBT.setString("mythicenchantsaddon_enchant_id", enchantID);
                     readWriteItemNBT.setInteger("mythicenchantsaddon_enchant_level", Number.getInteger(level));
                     readWriteItemNBT.setInteger("mythicenchantsaddon_success_chance", 100);
+                    readWriteItemNBT.setString("mythicenchantsaddon_item_type", "enchanted_book");
                 });
                 return itemStack;
             }
