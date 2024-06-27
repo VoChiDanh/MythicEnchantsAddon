@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 
 public class EnchantedBook {
 
-    public static @Nullable ItemStack getEnchantedBook(String enchantID, String level) {
+    public static @Nullable ItemStack getEnchantedBook(String enchantID, String level, int success) {
         MythicEnchant enchant = MythicEnchants.inst().getEnchantManager().getEnchantments().get(enchantID);
         if (enchant != null) {
             ItemStack enchantBook;
-            int successChance = Math.min(100, MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantInfo." + enchantID + ".SuccessChance")
+            int successChance = success >= 0 ? success : Math.min(100, MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantInfo." + enchantID + ".SuccessChance")
                     ? MythicEnchants.inst().getConfig().getInt("MythicEnchantsAddon.EnchantInfo." + enchantID + ".SuccessChance") :
                     MythicEnchants.inst().getConfig().getInt("MythicEnchantsAddon.EnchantInfo.DefaultSettings.SuccessChance", 70));
             if (MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantInfo." + enchantID + ".CustomLore")) {

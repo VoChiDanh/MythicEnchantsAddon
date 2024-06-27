@@ -145,11 +145,12 @@ public class MEA_CMD extends CMDBase {
                     }
                 }
             }
-            if (args.length == 4) {
+            if (args.length == 4 || args.length == 5) {
                 if (args[0].equalsIgnoreCase("give")) {
                     Player p = Bukkit.getPlayer(args[1]);
+                    int success = args.length == 5 ? Number.getInteger(args[4]) : -1;
                     if (p != null) {
-                        ItemStack enchantBook = EnchantedBook.getEnchantedBook(args[2], args[3]);
+                        ItemStack enchantBook = EnchantedBook.getEnchantedBook(args[2], args[3], success);
                         if (enchantBook != null) p.getInventory().addItem(enchantBook);
 
                     }
@@ -199,6 +200,15 @@ public class MEA_CMD extends CMDBase {
                 }
             }
             StringUtil.copyPartialMatches(args[3], commands, completions);
+        }
+        if (args.length == 5) {
+            if (sender.hasPermission("meaddon.admin")) {
+                if (args[0].equalsIgnoreCase("give")) {
+                    for (int i = 0; i <= 100; i+=25)
+                        commands.add(String.valueOf(i));
+                }
+            }
+            StringUtil.copyPartialMatches(args[4], commands, completions);
         }
         Collections.sort(completions);
         return completions;
