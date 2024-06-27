@@ -3,6 +3,8 @@ package net.danh.mythicenchantsaddon.utils;
 
 import net.danh.mythicenchantsaddon.resources.Chat;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +63,39 @@ public class ItemEditor {
         if (itemMeta.hasLore()) lore = new ArrayList<>(itemMeta.getLore());
         lore.add(line, Chat.normalColorize(lore2));
         itemMeta.setLore(lore);
+        return this;
+    }
+
+    public ItemEditor addHideFlagID(String itemFlagID) {
+        this.addHideFlagsID(itemFlagID);
+        return this;
+    }
+
+    public ItemEditor addHideFlagsID(String... itemFlagID) {
+        for (String flagID : itemFlagID) {
+            if (ItemFlag.valueOf(flagID) != null)
+                addHideFlag(ItemFlag.valueOf(flagID));
+        }
+        return this;
+    }
+
+    public ItemEditor addHideFlag(ItemFlag... itemFlag) {
+        itemMeta.addItemFlags(itemFlag);
+        return this;
+    }
+
+    public ItemEditor hideFlagAll() {
+        itemMeta.addItemFlags(ItemFlag.values());
+        return this;
+    }
+
+    public ItemEditor setUnbreakable(boolean unbreakable) {
+        itemMeta.setUnbreakable(unbreakable);
+        return this;
+    }
+
+    public ItemEditor addEnchant(Enchantment enchantment, int level) {
+        itemMeta.addEnchant(enchantment, level, true);
         return this;
     }
 
