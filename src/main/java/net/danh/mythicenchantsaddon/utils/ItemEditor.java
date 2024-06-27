@@ -94,6 +94,11 @@ public class ItemEditor {
         return this;
     }
 
+    public ItemEditor setCustomModelData(int customModelData) {
+        itemMeta.setCustomModelData(customModelData);
+        return this;
+    }
+
     public ItemEditor addEnchant(Enchantment enchantment, int level) {
         itemMeta.addEnchant(enchantment, level, true);
         return this;

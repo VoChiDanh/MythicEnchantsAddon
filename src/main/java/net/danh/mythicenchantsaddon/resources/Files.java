@@ -20,6 +20,8 @@ public class Files {
             fileConfiguration.set("MythicEnchantsAddon.EnchantedBook.Material", "ENCHANTED_BOOK");
         if (!fileConfiguration.contains("MythicEnchantsAddon.EnchantedBook.Display"))
             fileConfiguration.set("MythicEnchantsAddon.EnchantedBook.Display", "&6Enchanted Mythic Book");
+        if (!fileConfiguration.contains("MythicEnchantsAddon.EnchantedBook.CustomModelData"))
+            fileConfiguration.set("MythicEnchantsAddon.EnchantedBook.CustomModelData", 0);
         if (!fileConfiguration.contains("MythicEnchantsAddon.Message.CannotEnchant"))
             fileConfiguration.set("MythicEnchantsAddon.Message.CannotEnchant", "&cEnchant <enchant> can't be used on this item");
         if (!fileConfiguration.contains("MythicEnchantsAddon.Message.LimitEnchants"))

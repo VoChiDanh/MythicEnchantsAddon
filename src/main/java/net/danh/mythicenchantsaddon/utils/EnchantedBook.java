@@ -37,6 +37,8 @@ public class EnchantedBook {
                                 .replace("<level>", level)
                                 .replace("<success_chance>", String.valueOf(successChance))
                                 .replace("<fail_chance>", String.valueOf(100 - successChance)))
+                        .hideFlagAll()
+                        .setUnbreakable(true)
                         .toItemStack(), enchant, Number.getInteger(level));
             } else if (MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantInfo.DefaultSettings.DefaultLore")) {
                 enchantBook = MythicEnchants.inst().getEnchantManager().applyToItem(new ItemEditor(
@@ -52,6 +54,8 @@ public class EnchantedBook {
                                 .replace("<level>", level)
                                 .replace("<success_chance>", String.valueOf(successChance))
                                 .replace("<fail_chance>", String.valueOf(100 - successChance)))
+                        .hideFlagAll()
+                        .setUnbreakable(true)
                         .toItemStack(), enchant, Number.getInteger(level));
             } else {
                 enchantBook = MythicEnchants.inst().getEnchantManager().applyToItem(new ItemEditor(
@@ -61,8 +65,14 @@ public class EnchantedBook {
                                 .replace("<level>", level)
                                 .replace("<success_chance>", String.valueOf(successChance))
                                 .replace("<fail_chance>", String.valueOf(100 - successChance)))
+                        .hideFlagAll()
+                        .setUnbreakable(true)
                         .toItemStack(), enchant, Number.getInteger(level));
             }
+            if (MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantedBook.CustomModelData"))
+                enchantBook = new ItemEditor(enchantBook)
+                        .setCustomModelData(MythicEnchants.inst().getConfig().getInt("MythicEnchantsAddon.EnchantedBook.CustomModelData"))
+                        .toItemStack();
             NBT.modify(enchantBook, readWriteItemNBT -> {
                 readWriteItemNBT.setString("mythicenchantsaddon_enchant_id", enchantID);
                 readWriteItemNBT.setInteger("mythicenchantsaddon_enchant_level", Number.getInteger(level));
@@ -88,6 +98,8 @@ public class EnchantedBook {
                                     .replace("<level>", level)
                                     .replace("<success_chance>", String.valueOf(100))
                                     .replace("<fail_chance>", String.valueOf(0)))
+                            .hideFlagAll()
+                            .setUnbreakable(true)
                             .toItemStack();
                 } else {
                     itemStack = new ItemEditor(
@@ -96,8 +108,15 @@ public class EnchantedBook {
                                     .replace("<enchant>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))
                                     .replace("<level>", level)
                                     .replace("<success_chance>", String.valueOf(100))
-                                    .replace("<fail_chance>", String.valueOf(0))).toItemStack();
+                                    .replace("<fail_chance>", String.valueOf(0)))
+                            .hideFlagAll()
+                            .setUnbreakable(true)
+                            .toItemStack();
                 }
+                if (MythicEnchants.inst().getConfig().contains("MythicEnchantsAddon.EnchantedBook.CustomModelData"))
+                    itemStack = new ItemEditor(itemStack)
+                            .setCustomModelData(MythicEnchants.inst().getConfig().getInt("MythicEnchantsAddon.EnchantedBook.CustomModelData"))
+                            .toItemStack();
                 itemStack.addUnsafeEnchantment(enchantment, Number.getInteger(level));
                 NBT.modify(itemStack, readWriteItemNBT -> {
                     readWriteItemNBT.setString("mythicenchantsaddon_enchant_id", enchantID);
