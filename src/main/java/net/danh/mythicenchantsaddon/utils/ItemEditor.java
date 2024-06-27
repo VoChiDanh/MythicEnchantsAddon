@@ -17,7 +17,7 @@ public class ItemEditor {
     private ItemMeta itemMeta;
 
     public ItemEditor(Material m) {
-        this(m, 1);
+        this(m != null ? m : Material.ENCHANTED_BOOK, 1);
     }
 
     public ItemEditor(@NotNull ItemStack is) {
@@ -26,7 +26,7 @@ public class ItemEditor {
     }
 
     public ItemEditor(Material m, int amount) {
-        is = new ItemStack(m, amount);
+        is = new ItemStack(m != null ? m : Material.ENCHANTED_BOOK, amount);
         itemMeta = is.getItemMeta();
     }
 

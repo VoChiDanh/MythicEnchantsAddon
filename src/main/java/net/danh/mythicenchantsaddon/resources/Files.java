@@ -13,9 +13,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Files {
 
+    public static FileConfiguration getConfig() {
+        return MythicEnchants.inst().getConfig();
+    }
+
     public static void loadFileAddon() {
         File configFile = new File(MythicEnchants.inst().getDataFolder(), "config.yml");
-        FileConfiguration fileConfiguration = MythicEnchants.inst().getConfig();
+        FileConfiguration fileConfiguration = getConfig();
         if (!fileConfiguration.contains("MythicEnchantsAddon.EnchantedBook.Material"))
             fileConfiguration.set("MythicEnchantsAddon.EnchantedBook.Material", "ENCHANTED_BOOK");
         if (!fileConfiguration.contains("MythicEnchantsAddon.EnchantedBook.Display"))
@@ -30,11 +34,14 @@ public class Files {
             fileConfiguration.set("MythicEnchantsAddon.Message.EnchantFailed", "&cThe enchantment <enchantment> <level> has failed!");
         if (!fileConfiguration.contains("MythicEnchantsAddon.Message.EnchantSuccess"))
             fileConfiguration.set("MythicEnchantsAddon.Message.EnchantSuccess", "&aThe enchantment <enchantment> <level> is successful and applied to the item!");
+        if (!fileConfiguration.contains("MythicEnchantsAddon.Message.ReceiveEnchantedBook"))
+            fileConfiguration.set("MythicEnchantsAddon.Message.ReceiveEnchantedBook", "&aYou got Enchanted Book <name> <level> with <chance>% success!");
         if (!fileConfiguration.contains("MythicEnchantsAddon.Settings.DefaultLimitEnchants"))
             fileConfiguration.set("MythicEnchantsAddon.Settings.DefaultLimitEnchants", 10);
         if (!fileConfiguration.contains("MythicEnchantsAddon.Message.Command")) {
             List<String> listCMD = new ArrayList<>();
             listCMD.add("&6/meaddon give <player> <enchantID> <level> [successChance]- Give Enchantments Books");
+            listCMD.add("&6/meaddon successChanceBook <player> <successChance>- Give Success Chance Books");
             listCMD.add("&6/meaddon format-lore [player] - Format lore for item");
             listCMD.add("&6/meaddon reload - Reload Config");
             fileConfiguration.set("MythicEnchantsAddon.Message.Command", listCMD);
@@ -65,6 +72,24 @@ public class Files {
             fileConfiguration.set("MythicEnchantsAddon.EnchantInfo.DefaultSettings.DefaultLore", listLore);
             fileConfiguration.set("MythicEnchantsAddon.EnchantInfo.DefaultSettings.SuccessChance", ThreadLocalRandom.current().nextInt(101));
         }
+            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Material"))
+                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Material", "BOOK");
+            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Display"))
+                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Display", "&6Increase Success Chance Book");
+            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.CustomModelData"))
+                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.CustomModelData", 0);
+            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive"))
+                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive", "&aYou got <name>!");
+            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success"))
+                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success", "&aEnchant <enchant> <level> was increase success chance from <old_chance>% to <chance>%!");
+            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Lore")) {
+                List<String> listLore = new ArrayList<>();
+                listLore.add("&8");
+                listLore.add("&7Use to increase <chance>% success chance of enchant book");
+                listLore.add("&8");
+                listLore.add("&7Drag and drop onto the enchant book to apply");
+                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Lore", listLore);
+            }
         try {
             fileConfiguration.save(configFile);
         } catch (IOException e) {

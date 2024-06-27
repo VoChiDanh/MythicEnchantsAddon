@@ -5,9 +5,10 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import io.lumine.mythicenchants.MythicEnchants;
 import io.lumine.mythicenchants.enchants.EnchantManager;
 import net.danh.mythicenchantsaddon.resources.Chat;
+import net.danh.mythicenchantsaddon.resources.Files;
 import net.danh.mythicenchantsaddon.resources.Number;
 import net.danh.mythicenchantsaddon.utils.ConfigFile;
-import net.danh.mythicenchantsaddon.utils.EnchantedBook;
+import net.danh.mythicenchantsaddon.utils.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MEA_CMD extends CMDBase {
@@ -32,11 +34,25 @@ public class MEA_CMD extends CMDBase {
         if (c.hasPermission("meaddon.admin")) {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("help")) {
-                    MythicEnchants.inst().getConfig().getStringList("MythicEnchantsAddon.Message.Command").forEach(s -> c.sendMessage(Chat.colorize(s)));
+                    Files.getConfig().getStringList("MythicEnchantsAddon.Message.Command").forEach(s -> c.sendMessage(Chat.colorize(s)));
                 }
                 if (args[0].equalsIgnoreCase("reload")) {
                     new ConfigFile().reload();
                     c.sendMessage(Chat.colorize("<aqua>Reload completed"));
+                }
+            }
+            if (args.length == 3) {
+                if (args[0].equalsIgnoreCase("successChanceBook")) {
+                    Player p = Bukkit.getPlayer(args[1]);
+                    int chance = Number.getInteger(args[2]);
+                    if (p != null && chance > 0) {
+                        p.getInventory().addItem(Items.getSuccessChanceBook(chance));
+                        p.sendMessage(Chat.colorize(Files.getConfig().getString(
+                                        "MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive"
+                                )
+                                .replace("<name>", Objects.requireNonNull(
+                                        Files.getConfig().getString("MythicEnchantsAddon.SuccessChance.ItemSetting.Display")))));
+                    }
                 }
             }
             if (args.length == 1 || args.length == 2) {
@@ -150,9 +166,23 @@ public class MEA_CMD extends CMDBase {
                     Player p = Bukkit.getPlayer(args[1]);
                     int success = args.length == 5 ? Number.getInteger(args[4]) : -1;
                     if (p != null) {
-                        ItemStack enchantBook = EnchantedBook.getEnchantedBook(args[2], args[3], success);
-                        if (enchantBook != null) p.getInventory().addItem(enchantBook);
-
+                        ItemStack enchantBook = Items.getEnchantedBook(args[2], args[3], success);
+                        if (enchantBook != null) {
+                            String enchantID = NBT.get(enchantBook, readableItemNBT -> {
+                                return readableItemNBT.getString("mythicenchantsaddon_enchant_id");
+                            });
+                            int level = NBT.get(enchantBook, readableItemNBT -> {
+                                return readableItemNBT.getInteger("mythicenchantsaddon_enchant_level");
+                            });
+                            int successChance = NBT.get(enchantBook, readableItemNBT -> {
+                                return readableItemNBT.getInteger("mythicenchantsaddon_success_chance");
+                            });
+                            p.getInventory().addItem(enchantBook);
+                            p.sendMessage(Chat.colorize(Objects.requireNonNull(Files.getConfig().getString("MythicEnchantsAddon.Message.ReceiveEnchantedBook"))
+                                    .replace("<name>", MythicEnchants.inst().getEnchantManager().getEnchantments().get(enchantID).getDisplayName())
+                                    .replace("<level>", String.valueOf(level))
+                                    .replace("<chance>", String.valueOf(successChance))));
+                        }
                     }
                 }
             }
@@ -168,13 +198,15 @@ public class MEA_CMD extends CMDBase {
                 commands.add("reload");
                 commands.add("give");
                 commands.add("help");
+                commands.add("successChanceBook");
                 commands.add("format-lore");
             }
             StringUtil.copyPartialMatches(args[0], commands, completions);
         }
         if (args.length == 2) {
             if (sender.hasPermission("meaddon.admin")) {
-                if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("format-lore")) {
+                if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("format-lore")
+                        || args[0].equalsIgnoreCase("successChanceBook")) {
                     Bukkit.getOnlinePlayers().forEach(player -> commands.add(player.getName()));
                 }
             }
@@ -188,6 +220,10 @@ public class MEA_CMD extends CMDBase {
                         if (!commands.contains(enchantment.getKey().getKey().toUpperCase()))
                             commands.add(enchantment.getKey().getKey());
                     }
+                }
+                if (args[0].equalsIgnoreCase("successChanceBook")) {
+                    for (int i = 0; i <= 100; i += 25)
+                        commands.add(String.valueOf(i));
                 }
             }
             StringUtil.copyPartialMatches(args[2], commands, completions);
@@ -204,7 +240,7 @@ public class MEA_CMD extends CMDBase {
         if (args.length == 5) {
             if (sender.hasPermission("meaddon.admin")) {
                 if (args[0].equalsIgnoreCase("give")) {
-                    for (int i = 0; i <= 100; i+=25)
+                    for (int i = 0; i <= 100; i += 25)
                         commands.add(String.valueOf(i));
                 }
             }
