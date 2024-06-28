@@ -78,7 +78,7 @@ public class MEA_CMD extends CMDBase {
                                         return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
                                     });
                                     if (level > 0) {
-                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "goop nbt enchantment " + p.getName() + " hand " + enchantID + " +" + level);
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "goop nbt enchantment " + p.getName() + " hand " + enchantID + " " + level);
                                     }
                                 }
                                 StringBuilder mapAsString = new StringBuilder("&7");
@@ -131,7 +131,7 @@ public class MEA_CMD extends CMDBase {
                                             return readableItemNBT.getInteger("mythicenchantsaddon_enchant_" + enchantID);
                                         });
                                         if (level > 0) {
-                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "goop nbt enchantment " + p.getName() + " " + slot + " " + enchantID + " +" + level);
+                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "goop nbt enchantment " + p.getName() + " " + slot + " " + enchantID + " " + level);
                                         }
                                     }
                                     StringBuilder mapAsString = new StringBuilder("&7");
@@ -177,9 +177,12 @@ public class MEA_CMD extends CMDBase {
                             int successChance = NBT.get(enchantBook, readableItemNBT -> {
                                 return readableItemNBT.getInteger("mythicenchantsaddon_success_chance");
                             });
+                            EnchantManager enchantManager = MythicEnchants.inst().getEnchantManager();
                             p.getInventory().addItem(enchantBook);
                             p.sendMessage(Chat.colorize(Objects.requireNonNull(Files.getConfig().getString("MythicEnchantsAddon.Message.ReceiveEnchantedBook"))
-                                    .replace("<name>", MythicEnchants.inst().getEnchantManager().getEnchantments().get(enchantID).getDisplayName())
+                                    .replace("<name>",
+                                            enchantManager.getEnchantments().get(args[2]) != null ? enchantManager.getEnchantments().get(enchantID).getDisplayName()
+                                            : Chat.caseOnWords(args[2].replace("_", " ")))
                                     .replace("<level>", String.valueOf(level))
                                     .replace("<chance>", String.valueOf(successChance))));
                         }

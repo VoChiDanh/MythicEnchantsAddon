@@ -3,7 +3,6 @@ package net.danh.mythicenchantsaddon.utils;
 import de.tr7zw.changeme.nbtapi.NBT;
 import io.lumine.mythicenchants.MythicEnchants;
 import io.lumine.mythicenchants.enchants.MythicEnchant;
-import net.danh.mythicenchantsaddon.MythicEnchantsAddon;
 import net.danh.mythicenchantsaddon.resources.Chat;
 import net.danh.mythicenchantsaddon.resources.Files;
 import net.danh.mythicenchantsaddon.resources.Number;
@@ -11,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -103,6 +103,7 @@ public class Items {
         } else if (Enchantment.getByKey(NamespacedKey.minecraft(enchantID)) != null) {
             ItemStack itemStack;
             Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(enchantID));
+            int successChance = success >= 0 ? Math.min(success, 100) : 100;
             if (enchantment != null) {
                 if (Files.getConfig().contains("MythicEnchantsAddon.EnchantInfo.DefaultSettings.DefaultLore")) {
                     itemStack = new ItemEditor(
@@ -110,14 +111,14 @@ public class Items {
                             .addAllLore((Files.getConfig().getStringList("MythicEnchantsAddon.EnchantInfo.DefaultSettings.DefaultLore")
                                     .stream().map(s -> s.replace("<enchant>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))
                                             .replace("<level>", level)
-                                            .replace("<success_chance>", String.valueOf(100))
-                                            .replace("<fail_chance>", String.valueOf(0))
+                                            .replace("<success_chance>", String.valueOf(successChance))
+                                            .replace("<fail_chance>", String.valueOf(100 - successChance))
                                     ).collect(Collectors.toList())))
                             .setName(Objects.requireNonNull(Files.getConfig().getString("MythicEnchantsAddon.EnchantedBook.Display"))
                                     .replace("<enchant>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))
                                     .replace("<level>", level)
-                                    .replace("<success_chance>", String.valueOf(100))
-                                    .replace("<fail_chance>", String.valueOf(0)))
+                                    .replace("<success_chance>", String.valueOf(successChance))
+                                    .replace("<fail_chance>", String.valueOf(100 - successChance)))
                             .hideFlagAll()
                             .setUnbreakable(true)
                             .toItemStack();
@@ -127,8 +128,8 @@ public class Items {
                             .setName(Objects.requireNonNull(Files.getConfig().getString("MythicEnchantsAddon.EnchantedBook.Display"))
                                     .replace("<enchant>", Chat.caseOnWords(enchantment.getKey().getKey().replace("_", " ")))
                                     .replace("<level>", level)
-                                    .replace("<success_chance>", String.valueOf(100))
-                                    .replace("<fail_chance>", String.valueOf(0)))
+                                    .replace("<success_chance>", String.valueOf(successChance))
+                                    .replace("<fail_chance>", String.valueOf(100 - successChance)))
                             .hideFlagAll()
                             .setUnbreakable(true)
                             .toItemStack();
@@ -137,11 +138,13 @@ public class Items {
                     itemStack = new ItemEditor(itemStack)
                             .setCustomModelData(Files.getConfig().getInt("MythicEnchantsAddon.EnchantedBook.CustomModelData"))
                             .toItemStack();
-                itemStack.addUnsafeEnchantment(enchantment, Number.getInteger(level));
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                itemMeta.addEnchant(enchantment, Number.getInteger(level), true);
+                itemStack.setItemMeta(itemMeta);
                 NBT.modify(itemStack, readWriteItemNBT -> {
                     readWriteItemNBT.setString("mythicenchantsaddon_enchant_id", enchantID);
                     readWriteItemNBT.setInteger("mythicenchantsaddon_enchant_level", Number.getInteger(level));
-                    readWriteItemNBT.setInteger("mythicenchantsaddon_success_chance", 100);
+                    readWriteItemNBT.setInteger("mythicenchantsaddon_success_chance", successChance);
                     readWriteItemNBT.setString("mythicenchantsaddon_item_type", "enchanted_book");
                 });
                 return itemStack;
