@@ -182,7 +182,7 @@ public class MEA_CMD extends CMDBase {
                             p.sendMessage(Chat.colorize(Objects.requireNonNull(Files.getConfig().getString("MythicEnchantsAddon.Message.ReceiveEnchantedBook"))
                                     .replace("<name>",
                                             enchantManager.getEnchantments().get(args[2]) != null ? enchantManager.getEnchantments().get(enchantID).getDisplayName()
-                                            : Chat.caseOnWords(args[2].replace("_", " ")))
+                                                    : Chat.caseOnWords(args[2].replace("_", " ")))
                                     .replace("<level>", String.valueOf(level))
                                     .replace("<chance>", String.valueOf(successChance))));
                         }

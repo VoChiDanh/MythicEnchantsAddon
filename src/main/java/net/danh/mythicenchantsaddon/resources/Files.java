@@ -72,24 +72,24 @@ public class Files {
             fileConfiguration.set("MythicEnchantsAddon.EnchantInfo.DefaultSettings.DefaultLore", listLore);
             fileConfiguration.set("MythicEnchantsAddon.EnchantInfo.DefaultSettings.SuccessChance", ThreadLocalRandom.current().nextInt(101));
         }
-            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Material"))
-                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Material", "BOOK");
-            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Display"))
-                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Display", "&6Increase Success Chance Book");
-            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.CustomModelData"))
-                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.CustomModelData", 0);
-            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive"))
-                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive", "&aYou got <name>!");
-            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success"))
-                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success", "&aEnchant <enchant> <level> was increase success chance from <old_chance>% to <chance>%!");
-            if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Lore")) {
-                List<String> listLore = new ArrayList<>();
-                listLore.add("&8");
-                listLore.add("&7Use to increase <chance>% success chance of enchant book");
-                listLore.add("&8");
-                listLore.add("&7Drag and drop onto the enchant book to apply");
-                fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Lore", listLore);
-            }
+        if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Material"))
+            fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Material", "BOOK");
+        if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Display"))
+            fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Display", "&6Increase Success Chance Book");
+        if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.CustomModelData"))
+            fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.CustomModelData", 0);
+        if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive"))
+            fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Receive", "&aYou got <name>!");
+        if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success"))
+            fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success", "&aEnchant <enchant> <level> was increase success chance from <old_chance>% to <chance>%!");
+        if (!fileConfiguration.contains("MythicEnchantsAddon.SuccessChance.ItemSetting.Lore")) {
+            List<String> listLore = new ArrayList<>();
+            listLore.add("&8");
+            listLore.add("&7Use to increase <chance>% success chance of enchant book");
+            listLore.add("&8");
+            listLore.add("&7Drag and drop onto the enchant book to apply");
+            fileConfiguration.set("MythicEnchantsAddon.SuccessChance.ItemSetting.Lore", listLore);
+        }
         try {
             fileConfiguration.save(configFile);
         } catch (IOException e) {

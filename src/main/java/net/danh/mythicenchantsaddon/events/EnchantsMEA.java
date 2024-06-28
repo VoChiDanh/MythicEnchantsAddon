@@ -40,7 +40,10 @@ public class EnchantsMEA implements Listener {
                     return readableItemNBT.getString("mythicenchantsaddon_item_type").equalsIgnoreCase("enchanted_book");
                 })
                         && enchantBook.getType() == Material.valueOf(Files.getConfig().getString("MythicEnchantsAddon.EnchantedBook.Material"))
-                        && e.getCurrentItem() != null) {
+                        && e.getCurrentItem() != null
+                        && !NBT.get(enchantBook, readableItemNBT -> {
+                    return readableItemNBT.getString("mythicenchantsaddon_item_type").equalsIgnoreCase("success_chance_book");
+                })) {
                     int enchantLimits = nbtItem.hasTag("MMOITEMS_MYTHIC_LIMIT_ENCHANTS")
                             ? nbtItem.getInteger("MMOITEMS_MYTHIC_LIMIT_ENCHANTS")
                             : Files.getConfig().getInt("MythicEnchantsAddon.Settings.DefaultLimitEnchants", 10);
@@ -151,7 +154,7 @@ public class EnchantsMEA implements Listener {
                         int successChance = NBT.get(e.getCurrentItem(), readableItemNBT -> {
                             return readableItemNBT.getInteger("mythicenchantsaddon_success_chance");
                         });
-                        if  (successChance < 100 && Math.min(100, successChance + success_Chance) < 100) {
+                        if (successChance < 100) {
                             ItemStack itemStack = Items.getEnchantedBook(enchantID, String.valueOf(level), Math.min(100, successChance + success_Chance));
                             if (itemStack != null) {
                                 e.getCurrentItem().setItemMeta(itemStack.getItemMeta());
@@ -164,10 +167,12 @@ public class EnchantsMEA implements Listener {
                                 p.sendMessage(Chat.colorize(Objects.requireNonNull(Files.getConfig().getString(
                                                         "MythicEnchantsAddon.SuccessChance.ItemSetting.Message.Success"
                                                 ))
-                                        .replace("<enchant>", enchantManager.getEnchantments().get(enchantID).getDisplayName())
-                                        .replace("<level>", String.valueOf(level))
-                                        .replace("<old_chance>", String.valueOf(successChance))
-                                        .replace("<chance>", String.valueOf(Math.min(100, successChance + success_Chance)))
+                                                .replace("<enchant>",
+                                                        enchantManager.getEnchantments().get(enchantID) != null ? enchantManager.getEnchantments().get(enchantID).getDisplayName()
+                                                                : Chat.caseOnWords(enchantID.replace("_", " ")))
+                                                .replace("<level>", String.valueOf(level))
+                                                .replace("<old_chance>", String.valueOf(successChance))
+                                                .replace("<chance>", String.valueOf(Math.min(100, successChance + success_Chance)))
                                 ));
                             }
                         }
