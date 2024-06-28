@@ -85,7 +85,9 @@ public class ItemEditor {
     }
 
     public ItemEditor hideFlagAll() {
-        itemMeta.addItemFlags(ItemFlag.values());
+        for (ItemFlag itemFlag : ItemFlag.values())
+            if (!itemFlag.equals(ItemFlag.HIDE_ENCHANTS))
+                itemMeta.addItemFlags(itemFlag);
         return this;
     }
 
